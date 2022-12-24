@@ -107,7 +107,7 @@ int partition(ll arr[],ll l, ll r)
 {
     ll pivot=arr[r];
     ll i=l-1;
-    for(ll j=l;j<r5;j++)
+    for(ll j=l;j<r;j++)
     {
         if(arr[j]<pivot)
         {
