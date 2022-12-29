@@ -8,18 +8,14 @@ bool vis[N];
 
 void dfs(ll vertex)
 {
-    cout<<vertex<<endl;
-    vis[vertex] = true;    //vertex e dhukar pore kaj
+    cout<<"Vertex : "<<vertex<<endl;
+    vis[vertex] = true;     //visited naki nah
     for( ll child : g[vertex])
     {
-        cout<<"P : "<<vertex<<" C : "<<child<<endl;
-        if(vis[child]) continue;    //child e dhukar age kaj
+        cout<<"Parent : "<<vertex<<" Child : "<<child<<endl;
+        if(vis[child]) continue;    //child ki visited naki
         dfs(child);
-        //child theke ber howar age
-
     }
-    //vertex e ber howar age
-
 }
 
 int main()
