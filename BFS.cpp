@@ -4,14 +4,14 @@ using namespace std;
 const ll N = 1e5+10;
 
 vector<ll>g[N];
-int vis[N];
+bool vis[N];
 int level[N];
 
 void bfs(ll source)
 {
     queue<ll>q;
     q.push(source);
-    vis[source] = 1;
+    vis[source] = true;
     while(!q.empty())
     {
         ll cur_v=q.front();
@@ -22,7 +22,7 @@ void bfs(ll source)
             if(!vis[child])
             {
                 q.push(child);
-                vis[child] = 1;
+                vis[child] = true;
                 level[child] = level[cur_v] + 1;
             }
         }
@@ -66,3 +66,4 @@ int main()
 // 4 10
 // 10 11
 // 9 11
+
