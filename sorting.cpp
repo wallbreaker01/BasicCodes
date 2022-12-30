@@ -115,7 +115,7 @@ int partition(ll arr[],ll l, ll r)
             swap(arr[i],arr[j]);
         }
     }
-    swap(arr[i+1],arr[r]);
+    swap(arr[i+1],arr[r]); //pivot ta r index theke i er porer index e niya ashchi
     return i+1;
 }
 
