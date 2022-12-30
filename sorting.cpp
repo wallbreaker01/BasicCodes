@@ -41,13 +41,13 @@ void insertionSort(ll arr[],ll n)
     for(ll i=1;i<n;i++)
     {
         key=arr[i];
-        j=i-1;
+        j=i-1; //i er bam er index
         while(j>=0 && arr[j]>key)
         {
-            arr[j+1]=arr[j];
-            j--;
+            arr[j+1]=arr[j]; //bam er index daner che boro hole ek ghor kore dane sorai dibo
+            j--; //
         }
-        arr[j+1]=key;
+        arr[j+1]=key; //current number k boshai dilam faka zaygay
     }
 }
 
