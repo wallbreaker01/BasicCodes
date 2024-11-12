@@ -95,9 +95,4 @@ int main()
         cout << "No solution exists for " << n << " queens." << endl;  // If no solution is found
     }
 
-    // Free dynamically allocated memory
-    for (ll i = 0; i < n; i++) delete[] arr[i];
-    delete[] arr;
-
-    return 0;
 }
