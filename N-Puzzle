@@ -1,0 +1,178 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <map>
+#include <algorithm>
+
+using namespace std;
+
+// Define the size of the puzzle (3x3)
+const int N = 3;     // 3x3 puzzle
+const int INF = 1e9; // Infinity value used for initial costs
+
+// Define the State structure to represent each configuration of the puzzle
+struct State
+{
+    vector<vector<int>> board; // Current configuration of the puzzle
+    int cost;                  // Cost to reach this state (number of moves)
+    int heuristic;             // Heuristic value (estimate of moves to goal state)
+    int row, col;              // Position of the empty cell (0)
+
+    // Constructor to initialize a state with a given board, cost, and empty cell position
+    State(vector<vector<int>> &b, int c, int r, int cl) : board(b), cost(c), row(r), col(cl)
+    {
+        heuristic = calculateHeuristic(); // Calculate the heuristic for the current state
+    }
+
+    // Function to calculate the heuristic (Manhattan distance for the puzzle)
+    int calculateHeuristic()
+    {
+        int h = 0;
+        // Loop through the puzzle board
+        for (int i = 0; i < N; ++i)
+            for (int j = 0; j < N; ++j)
+                if (board[i][j] != 0) // Ignore the empty cell (0)
+                    // Calculate Manhattan distance between the current cell and the goal position of the number
+                    h += abs(i - (board[i][j] - 1) / N) + abs(j - (board[i][j] - 1) % N);
+        return h; // Return the total heuristic value
+    }
+
+    // Function to check if the current state is the goal state
+    bool isGoal()
+    {
+        vector<vector<int>> goal = {{1, 2, 3}, {8, 0, 4}, {7, 6, 5}}; // Goal configuration
+        return board == goal;                                         // Check if the current board matches the goal
+    }
+
+    // Comparison operator for the priority queue (used to order states by f = cost + heuristic)
+    bool operator<(const State &other) const
+    {
+        return cost + heuristic > other.cost + other.heuristic; // Priority Queue will pop lowest f value
+    }
+};
+
+// Function to check if a row and column are valid (within board bounds)
+bool isValid(int row, int col)
+{
+    return (row >= 0 && row < N && col >= 0 && col < N); // Check if the coordinates are within the puzzle
+}
+
+// Function to get all possible valid neighbors by moving the empty cell
+vector<State> getNeighbors(State &current)
+{
+    vector<State> neighbors; // List to store valid neighbors
+
+    // Directions for up, right, down, and left
+    int dr[] = {-1, 0, 1, 0};
+    int dc[] = {0, 1, 0, -1};
+
+    // Try moving in each direction
+    for (int d = 0; d < 4; ++d)
+    {
+        int newRow = current.row + dr[d]; // New row after the move
+        int newCol = current.col + dc[d]; // New column after the move
+
+        // Check if the new position is valid (within bounds)
+        if (isValid(newRow, newCol))
+        {
+            // Create a new board by copying the current board
+            vector<vector<int>> newBoard = current.board;
+            // Swap the empty cell (0) with the adjacent cell in the current direction
+            swap(newBoard[current.row][current.col], newBoard[newRow][newCol]);
+            // Create a new state with the new configuration
+            neighbors.push_back(State(newBoard, current.cost + 1, newRow, newCol));
+        }
+    }
+
+    return neighbors; // Return the list of valid neighbors
+}
+
+// Function to print the current board configuration
+void printBoard(const vector<vector<int>> &board)
+{
+    for (int i = 0; i < N; ++i)
+    {
+        for (int j = 0; j < N; ++j)
+        {
+            cout << board[i][j] << " "; // Print each number followed by a space
+        }
+        cout << endl; // Newline after each row
+    }
+}
+
+// A* algorithm to solve the puzzle
+int solveAStar(State start)
+{
+    priority_queue<State> pq; // Priority queue for A* search, ordered by cost + heuristic (f value)
+    pq.push(start);           // Push the initial state to the queue
+
+    map<vector<vector<int>>, int> visited; // Map to track visited states (avoid revisiting same board)
+    visited[start.board] = 1;              // Mark the start state as visited
+
+    while (!pq.empty())
+    {                             // Loop while there are states in the priority queue
+        State current = pq.top(); // Get the state with the lowest f value
+        pq.pop();                 // Pop it from the queue
+
+        // Check if the current state is the goal state
+        if (current.isGoal())
+            return current.cost; // If goal is reached, return the cost (number of moves)
+
+        // Get all valid neighbors (states we can move to from the current state)
+        vector<State> neighbors = getNeighbors(current);
+        for (State neighbor : neighbors)
+        {
+            // If the neighbor hasn't been visited or a better cost is found
+            if (visited.find(neighbor.board) == visited.end() || neighbor.cost < visited[neighbor.board])
+            {
+                visited[neighbor.board] = neighbor.cost; // Mark the neighbor as visited with its cost
+                pq.push(neighbor);                       // Push the neighbor state to the priority queue
+
+                // Print the puzzle configuration after each step
+                cout << "After " << neighbor.cost << " move(s):" << endl;
+                printBoard(neighbor.board); // Print the neighbor's board
+                cout << endl;
+            }
+        }
+    }
+
+    return -1; // If the queue is empty and no solution is found, return -1
+}
+
+// Main function
+int main()
+{
+    vector<vector<int>> initialBoard(N, vector<int>(N)); // Initialize the 3x3 board
+    int startRow, startCol;                              // Variables to store the position of the empty cell
+
+    // Prompt the user to input the initial puzzle configuration
+    cout << "Enter the initial puzzle configuration (0 for empty cell):" << endl;
+    for (int i = 0; i < N; ++i)
+    {
+        for (int j = 0; j < N; ++j)
+        {
+            cin >> initialBoard[i][j]; // Input the value at each position
+            if (initialBoard[i][j] == 0)
+            {                 // If the empty cell (0) is found
+                startRow = i; // Store the row of the empty cell
+                startCol = j; // Store the column of the empty cell
+            }
+        }
+    }
+
+    // Create the starting state
+    State startState(initialBoard, 0, startRow, startCol);
+    // Call the A* solver to find the minimum number of moves
+    int moves = solveAStar(startState);
+
+    if (moves == -1)
+    {
+        cout << "Solution not found!" << endl; // If no solution is found
+    }
+    else
+    {
+        cout << "Minimum number of moves: " << moves << endl; // Print the number of moves
+    }
+
+    return 0; // End the program
+}
